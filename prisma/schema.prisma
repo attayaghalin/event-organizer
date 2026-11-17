@@ -1,0 +1,46 @@
+datasource db {
+    provider = "postgresql"
+    url = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+enum Role{
+        admin
+        user
+    } 
+
+model User {
+    id Int @id @default(autoincrement())
+    email String @unique
+    name String 
+    password String
+    role Role @default(user)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    registrations Registration[]
+}
+
+model Event {
+    id Int @id @default(autoincrement())
+    title String 
+    description String?
+    date DateTime
+    quota Int
+    location String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    registrations Registration[]
+}
+
+model Registration {
+    id Int @id @default(autoincrement())
+    registeredAt DateTime @default(now())
+    userId Int
+    eventId Int
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+    @@unique([userId, eventId])
+}
